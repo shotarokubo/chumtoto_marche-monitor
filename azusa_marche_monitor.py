@@ -1,7 +1,7 @@
 import requests
 import os
-import re
 import json
+import re
 
 # --- 設定 ---
 CHANNEL_ACCESS_TOKEN = os.getenv('LINE_ACCESS_TOKEN')
@@ -36,46 +36,59 @@ def check_marche():
         response = requests.get(TARGET_URL, headers=headers, timeout=15)
         html = response.text
         
-        # HTMLから情報を抜き出す
-        titles = re.findall(r'class="product-card__title">([^<]+)</div>', html)
-        # 「残り 3 枚 / 全 10 枚」のような構造から両方の数字を取る
-        stocks_current = re.findall(r'残り\s*(\d+)\s*枚', html)
-        stocks_total = re.findall(r'全\s*(\d+)\s*枚', html)
+        # 1. HTML内の "__NEXT_DATA__" (JSON) を探し出す
+        json_match = re.search(r'<script id="__NEXT_DATA__" type="application/json">(.*?)</script>', html)
+        if not json_match:
+            print("データタグが見つかりません。")
+            return
+
+        # 2. JSONを解析
+        data = json.loads(json_match.group(1))
+        # 商品リストが眠っている場所を狙い撃ち
+        products = data.get('props', {}).get('pageProps', {}).get('products', [])
+
+        if not products:
+            print("現在、出品中の商品は見つかりませんでした。")
+            return
 
         current_data = {}
-        for i in range(len(titles)):
-            title = titles[i].strip()
-            count = int(stocks_current[i])
-            # 全数がうまく取れない場合は「?」にする
-            total = stocks_total[i] if i < len(stocks_total) else "?"
+        for p in products:
+            title = p.get('title', '商品')
+            limit = p.get('limit_quantity', 0) # これが「全数」
+            sold = p.get('sold_quantity', 0)   # これが「売れた数」
+            remaining = limit - sold           # これが「残り数」
+            p_id = p.get('id')
+            p_url = f"https://marche-yell.com/dst_miyaharaazu/products/{p_id}"
             
-            current_data[title] = count
+            current_data[title] = remaining
             last_count = last_data.get(title, -1)
 
             should_notify = False
             reason = ""
 
+            # 通知判定
             if last_count == -1:
                 should_notify = True
                 reason = "✨ 新着出品！"
-            elif count <= 3 and last_count > 3:
+            elif remaining <= 3 and last_count > 3:
                 should_notify = True
                 reason = "⚠️ 残りわずか！"
-            elif count > last_count and last_count != -1:
+            elif remaining > last_count and last_count != -1:
                 should_notify = True
                 reason = "🔄 在庫復活！"
 
             if should_notify:
-                # メッセージに全数を追加
-                msg = f"\n【{reason}】宮原梓\n{title}\n在庫：残り {count} / 全 {total} 枚\n{TARGET_URL}"
+                # LINEメッセージ
+                msg = f"\n【{reason}】宮原梓\n{title}\n在庫：残り {remaining} / 全 {limit} 枚\n{p_url}"
                 send_line(msg)
-                print(f"通知送信: {title} ({count}/{total})")
+                print(f"通知送信: {title} ({remaining}/{limit})")
 
+        # 今回の状態を保存
         with open(DB_FILE, "w") as f:
             json.dump(current_data, f)
 
     except Exception as e:
-        print(f"エラー: {e}")
+        print(f"解析エラー: {e}")
 
 if __name__ == "__main__":
     check_marche()
