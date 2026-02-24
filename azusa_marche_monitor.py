@@ -30,26 +30,35 @@ def check_marche():
         response = requests.get(TARGET_URL, headers=headers)
         html_content = response.text
         
-        # HTML内に埋め込まれているデータ（__NEXT_DATA__）を探す
         match = re.search(r'<script id="__NEXT_DATA__" type="application/json">(.*?)</script>', html_content)
-        
         if not match:
-            print("データが見つかりませんでした。サイトの構造が大幅に変更された可能性があります。")
+            print("データタグが見つかりません。")
             return
 
-        # データの塊を解析
-        data = json.loads(match.group(1))
-        # 商品リストが格納されている深い階層を指定
-        products = data.get('props', {}).get('pageProps', {}).get('products', [])
+        full_data = json.loads(match.group(1))
+        
+        # --- 調査ログ出力 ---
+        # どこにデータがあるか探すために、データのキーをすべて表示します
+        props = full_data.get('props', {})
+        page_props = props.get('pageProps', {})
+        print("見つかったキー:", page_props.keys())
+
+        # マルシェの新しい構造に合わせてデータを取得
+        # 'products' が無い場合、'creator' の中や別の場所に隠れている可能性があります
+        products = page_props.get('products') or page_props.get('creator', {}).get('products', [])
 
         if not products:
-            print("現在、販売中の商品は見つかりませんでした。")
+            print("--- デバッグ情報 ---")
+            # データの先頭部分だけ表示して構造を確認
+            print(json.dumps(page_props, indent=2, ensure_ascii=False)[:1000])
+            print("------------------")
             return
 
         for p in products:
             title = p.get('title', '新着商品')
-            sold = p.get('sold_quantity', 0)
+            # 完売時は limit_quantity と sold_quantity が同じになる
             limit = p.get('limit_quantity', 0)
+            sold = p.get('sold_quantity', 0)
             remaining = limit - sold
             p_id = p.get('id')
             p_url = f"https://marche-yell.com/dst_miyaharaazu/products/{p_id}"
