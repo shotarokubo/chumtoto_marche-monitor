@@ -1,26 +1,33 @@
-name: Marche Inventory Monitor
+name: Marche Monitor
 
 on:
   schedule:
-    - cron: '*/10 * * * *'  # 10分おきに実行（世界標準時）
-  workflow_dispatch:        # 手動で今すぐ実行するためのボタン
+    - cron: '*/10 * * * *' # 10分おき
+  workflow_dispatch: # 手動実行用
 
 jobs:
   check-stock:
     runs-on: ubuntu-latest
     steps:
-      - name: リポジトリのコードを読み込む
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
-      - name: Pythonをセットアップ
-        uses: actions/setup-python@v5
+      # 前回の在庫データを復元する設定
+      - name: Cache stock data
+        uses: actions/cache@v3
         with:
-          python-version: '3.10'
+          path: last_stock.json
+          key: stock-data-${{ github.run_id }}
+          restore-keys: stock-data-
 
-      - name: 必要なライブラリをインストール
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
         run: pip install requests
 
-      - name: 監視スクリプトを実行
+      - name: Run script
         env:
           LINE_ACCESS_TOKEN: ${{ secrets.LINE_ACCESS_TOKEN }}
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
