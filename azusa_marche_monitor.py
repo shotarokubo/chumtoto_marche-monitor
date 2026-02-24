@@ -45,7 +45,7 @@ def check_marche():
             # 今回はシンプルに「在庫が3枚以下」になったら通知する設定です
             # ※もっと細かく（1枚売れるたび等）したい場合は、
             # データの保存が必要になるのでまずはここから！
-            if remaining <= 3 and remaining > 0:
+            if True:  # テスト送信用：常に通知する
                 msg = f"\n【在庫わずか！】宮原梓\n{title}\n残り {remaining} / {limit} 枚\n{p_url}"
                 send_line(msg)
                 print(f"通知送信: {title}")
