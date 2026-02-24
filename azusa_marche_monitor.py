@@ -40,6 +40,10 @@ def check_marche():
         stocks = re.findall(r'残り\s*(\d+)\s*枚', html)
 
         current_data = {}
+        # --- ここからテスト用追加 ---
+        titles = ["テスト出品アイテム"]
+        stocks = ["5"]
+        # --- ここまでテスト用追加 ---
         for i in range(len(titles)):
             title = titles[i].strip()
             count = int(stocks[i])
