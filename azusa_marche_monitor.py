@@ -1,11 +1,11 @@
 import requests
 import os
+import json
 import re
 
-# --- 設定：GitHubのSecretから読み込む ---
+# --- 設定 ---
 CHANNEL_ACCESS_TOKEN = os.getenv('LINE_ACCESS_TOKEN')
 USER_ID = os.getenv('LINE_USER_ID')
-# APIではなく、通常のショップページを見に行きます
 TARGET_URL = "https://marche-yell.com/dst_miyaharaazu"
 
 def send_line(text):
@@ -28,28 +28,35 @@ def check_marche():
     
     try:
         response = requests.get(TARGET_URL, headers=headers)
-        print(f"Status Code: {response.status_code}")
-        
-        # HTMLの中から在庫情報を探す（簡易的な解析）
         html_content = response.text
         
-        # 商品名と残り枚数を探す（サイトの構造に合わせた抽出）
-        # ※正規表現で「残り◯枚」という部分を抜き出します
-        items = re.findall(r'class="product-card__title">(.*?)<.*?残り\s*(\d+)\s*枚', html_content, re.S)
+        # HTML内に埋め込まれているデータ（__NEXT_DATA__）を探す
+        match = re.search(r'<script id="__NEXT_DATA__" type="application/json">(.*?)</script>', html_content)
         
-        if not items:
-            print("商品データが見つかりませんでした。ページ構造が変わった可能性があります。")
-            # デバッグ用にHTMLの一部を表示
-            print(html_content[:500])
+        if not match:
+            print("データが見つかりませんでした。サイトの構造が大幅に変更された可能性があります。")
             return
 
-        for title, remaining in items:
-            remaining = int(remaining)
-            title = title.strip()
-            
-            # テスト用に一旦「True」にしています。成功したら条件を戻してください。
+        # データの塊を解析
+        data = json.loads(match.group(1))
+        # 商品リストが格納されている深い階層を指定
+        products = data.get('props', {}).get('pageProps', {}).get('products', [])
+
+        if not products:
+            print("現在、販売中の商品は見つかりませんでした。")
+            return
+
+        for p in products:
+            title = p.get('title', '新着商品')
+            sold = p.get('sold_quantity', 0)
+            limit = p.get('limit_quantity', 0)
+            remaining = limit - sold
+            p_id = p.get('id')
+            p_url = f"https://marche-yell.com/dst_miyaharaazu/products/{p_id}"
+
+            # テスト用：常に通知
             if True: 
-                msg = f"\n【在庫チェック】宮原梓\n{title}\n残り {remaining} 枚\n{TARGET_URL}"
+                msg = f"\n【在庫チェック】宮原梓\n{title}\n残り {remaining} 枚\n{p_url}"
                 send_line(msg)
                 print(f"通知送信: {title}")
 
