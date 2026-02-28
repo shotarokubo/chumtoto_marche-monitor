@@ -41,8 +41,9 @@ def check_marche():
         except:
             last_data = {}
 
+    # 最新のiPhoneのUser-Agentに更新してブロックを回避
     headers = {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Mobile/15E148 Safari/604.1",
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1",
     }
 
     current_all_data = {}
@@ -61,15 +62,27 @@ def check_marche():
                 print(f"  -> スキップ: アクセス拒否 ({response.status_code})")
                 continue
 
+            # HTML内のJSONデータを抽出
             json_match = re.search(r'<script id="__NEXT_DATA__" type="application/json">(.*?)</script>', response.text)
             if not json_match:
+                print(f"  -> データ構造が見つかりません")
                 continue
 
             data = json.loads(json_match.group(1))
-            products = data.get('props', {}).get('pageProps', {}).get('products', [])
+            
+            # --- 修正ポイント: 階層が変わっても取得できるように柔軟に探す ---
+            page_props = data.get('props', {}).get('pageProps', {})
+            
+            # 1. pageProps直下 2. initialState内 3. fallbackで空リスト
+            products = page_props.get('products') or \
+                       page_props.get('initialState', {}).get('products', [])
+            # --------------------------------------------------------
 
             # このクリエイター用の保存データ
             current_all_data[cid] = {}
+
+            if not products:
+                print(f"  -> 商品が見つかりませんでした（0件）")
 
             for p in products:
                 title = p.get('title', '商品')
@@ -90,12 +103,13 @@ def check_marche():
                 if last_count == -1:
                     should_notify = True
                     reason = "✨ 新着出品！"
+                elif remaining > 0 and (last_count <= 0 or last_count == -1):
+                    # 在庫が0以下から増えた場合
+                    should_notify = True
+                    reason = "🔄 在庫復活！"
                 elif remaining <= 3 and last_count > 3:
                     should_notify = True
                     reason = "⚠️ 残りわずか！"
-                elif remaining > last_count and last_count != -1:
-                    should_notify = True
-                    reason = "🔄 在庫復活！"
 
                 if should_notify and remaining > 0:
                     msg = f"\n【{reason}】{name}\n{title}\n在庫：残り {remaining} / 全 {limit} 枚\n{p_url}"
