@@ -38,10 +38,14 @@ def check_marche():
         except:
             last_data = {}
 
+    # マルシェのフロントエンドが実際に使用しているヘッダーセット
     headers = {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1",
-        "Accept": "application/json", # JSONを要求
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "ja,en-US;q=0.9,en;q=0.8",
+        "Origin": "https://marche-yell.com",
         "Referer": "https://marche-yell.com/",
+        "X-Requested-With": "XMLHttpRequest"
     }
 
     current_all_data = {}
@@ -50,21 +54,24 @@ def check_marche():
         name = creator["name"]
         cid = creator["id"]
         
-        # 修正ポイント: HTMLではなく、APIから直接データを取得するURLに変更
-        # これにより、JavaScriptの実行なしで最新データが拾えます
-        api_url = f"https://marche-yell.com/api/v1/creators/{cid}/products?limit=20&offset=0"
+        # 修正ポイント: 実際のブラウザ通信に基づいた正確なエンドポイントに変更
+        api_url = f"https://marche-yell.com/api/creators/{cid}/products?limit=24&offset=0"
         
         print(f"チェック中: {name} ({cid})...")
         
         try:
             response = requests.get(api_url, headers=headers, timeout=15)
+            
+            # 403/404エラーが出た場合のログを強化
             if response.status_code != 200:
                 print(f"  -> スキップ: アクセス拒否 ({response.status_code})")
                 continue
 
-            # APIの結果はそのままJSONとして読み込める
             data = response.json()
-            products = data.get('products', [])
+            
+            # APIのレスポンス形式に合わせて取得
+            # products または data 配下にあるケース両方に対応
+            products = data.get('products') or data.get('data', {}).get('products', [])
 
             current_all_data[cid] = {}
 
@@ -91,7 +98,7 @@ def check_marche():
                 if last_count == -1:
                     should_notify = True
                     reason = "✨ 新着出品！"
-                elif remaining > 0 and last_count <= 0:
+                elif remaining > 0 and (last_count <= 0):
                     should_notify = True
                     reason = "🔄 在庫復活！"
                 elif remaining <= 3 and last_count > 3:
