@@ -86,20 +86,27 @@ def main():
                 db_key = f"{c_id}_{p_id}"
                 
                 msg = ""
+                # 1. 完全な新着（商品IDが初めて登場した時）
                 if db_key not in last_data:
-                    msg = (f"\n✨【新着】{c_name}\n{title}\n"
-                           f"開始: {start_jst}\n在庫: {stock}/{limit}\n"
-                           f"https://marche-yell.com/{c_id}/products/{p_id}")
+                    msg = (f"✨【新着】{c_name}\n"
+                           f"📝 {title}\n"
+                           f"📅 開始: {start_jst}\n"
+                           f"📦 在庫: {stock}/{limit}\n"
+                           f"🔗 https://marche-yell.com/{c_id}/products/{p_id}") # URLあり
+
+                # 2. 在庫復活（在庫0から増えた時）
                 elif stock > 0 and last_data[db_key].get('stock', 0) == 0:
-                    msg = (f"\n🔄【復活】{c_name}\n{title}\n"
-                           f"残り {stock}個！\n"
-                           f"https://marche-yell.com/{c_id}/products/{p_id}")
-                
+                    msg = (f"🔄【復活】{c_name}\n"
+                           f"📝 {title}\n"
+                           f"📦 残り {stock}個！\n"
+                           f"🔗 https://marche-yell.com/{c_id}/products/{p_id}") # URLあり
+
+                # 通知送信
                 if msg:
                     send_line(msg)
                     print(f"通知送信: {title}")
 
-                # JSON保存（ボットが「名前」でも検索できるようにnameを含める）
+                # JSON保存用のデータ更新（ここは常に最新にする）
                 new_inventory_data[db_key] = {
                     "name": c_name,
                     "title": title, 
