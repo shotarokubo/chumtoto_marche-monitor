@@ -8,14 +8,14 @@ from datetime import datetime, timedelta
 LINE_TOKEN = os.getenv('LINE_ACCESS_TOKEN')
 USER_ID = os.getenv('LINE_USER_ID')
 
-# ChumToto ターゲットリスト（名前付き）
+# --- 修正版：あだ名付きターゲットリスト ---
 TARGET_CREATORS = [
-    {"name": "宮原梓", "id": "dst_miyaharaazu"},
-    {"name": "江本夏渚", "id": "dst_emotonana"},
-    {"name": "柏葉れん", "id": "dst_kashiwabare"},
-    {"name": "瀬﨑くるみ", "id": "dst_sezakikurum"},
-    {"name": "詩之宮かこ", "id": "chum_shinomiyak"},
-    {"name": "ChumToto", "id": "chumtoto"},
+    {"name": "宮原梓", "id": "dst_miyaharaazu", "nickname": "ずに|あずさ|梓|あずにゃん|あずにゃ|みゃずさ"},
+    {"name": "江本夏渚", "id": "dst_emotonana", "nickname": "ななぴ|なな|ななちゃん"},
+    {"name": "柏葉れん", "id": "dst_kashiwabare", "nickname": "れんれん|れんちゃん"},
+    {"name": "瀬﨑くるみ", "id": "dst_sezakikurum", "nickname": "陶芸家|くるるん|くるみ"},
+    {"name": "詩之宮かこ", "id": "chum_shinomiyak", "nickname": "かこちゃん|かこ"},
+    {"name": "ChumToto", "id": "chumtoto", "nickname": "ちゅむとと|公式"},
 ]
 
 DB_FILE = "chum_last_inventory.json"
