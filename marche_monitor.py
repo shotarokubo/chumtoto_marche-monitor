@@ -31,22 +31,29 @@ def convert_to_jst_full(utc_str):
         return "0000-00-00 00:00"
 
 def send_line(message):
-    if not LINE_TOKEN or not USER_ID: return
-    url = "https://api.line.me/v2/bot/message/push"
+    if not LINE_TOKEN:
+        print("LINE_TOKENが設定されていないため、送信をスキップします。")
+        return
+    
+    # 送信先をブロードキャスト（全員）用のエンドポイントに変更
+    url = "https://api.line.me/v2/bot/message/broadcast"
+    
     headers = {
         "Content-Type": "application/json", 
         "Authorization": f"Bearer {LINE_TOKEN}"
     }
+    
+    # 'to' (宛先) 指定が不要になります
     payload = {
-        "to": USER_ID, 
         "messages": [{"type": "text", "text": message}]
     }
+    
     try:
         res = requests.post(url, headers=headers, json=payload)
         res.raise_for_status()
+        print(f"一斉配信成功: {message[:20]}...")
     except Exception as e:
         print(f"LINE送信エラー: {e}")
-
 def main():
     last_data = {}
     if os.path.exists(DB_FILE):
