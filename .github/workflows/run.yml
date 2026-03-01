@@ -2,27 +2,24 @@ name: Marche Monitor
 
 on:
   schedule:
-    - cron: '*/10 * * * *' # 10分おき
+    - cron: '*/5 * * * *' # 5分おきに設定（前述の通り5分が最短推奨）
   workflow_dispatch: # 手動実行用
 
 jobs:
   check-stock:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
+    # 書き込み権限を明示的に付与
+    permissions:
+      contents: write
 
-      # 前回の在庫データを復元する設定
-      - name: Cache stock data
-        uses: actions/cache@v3
-        with:
-          path: last_stock.json
-          key: stock-data-${{ github.run_id }}
-          restore-keys: stock-data-
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
+          python-version: '3.10'
 
       - name: Install dependencies
         run: pip install requests
@@ -32,3 +29,12 @@ jobs:
           LINE_ACCESS_TOKEN: ${{ secrets.LINE_ACCESS_TOKEN }}
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
         run: python marche_monitor.py
+
+      # --- ここでJSONファイルをGitHubリポジトリに保存（Push）する ---
+      - name: Commit and Push JSON
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add chum_last_inventory.json
+          # 変更がある場合のみコミットしてプッシュ（エラー回避のため）
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update inventory JSON" && git push)
