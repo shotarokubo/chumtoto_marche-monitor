@@ -131,15 +131,17 @@ def main():
                 if msg:
                     send_line(msg)
                     print(f"通知送信: {title} (Future: {is_future})")
-                # JSON保存用のデータ更新（ここは常に最新にする）
-                new_inventory_data[db_key] = {
-                    "name": c_name,
-                    "title": title, 
-                    "stock": stock, 
-                    "limit": limit,
-                    "start": start_jst,
-                    "creator_id": c_id
-                }
+               
+                # JSON保存部分（nicknameも保存するように1行追加）
+new_inventory_data[db_key] = {
+    "name": c_name,
+    "nickname": creator.get("nickname", ""), # ここを追加
+    "title": title, 
+    "stock": stock, 
+    "limit": limit,
+    "start": start_jst,
+    "creator_id": c_id
+}
 
         except Exception as e:
             print(f"エラー ({c_name}): {e}")
