@@ -9,7 +9,7 @@ DB_FILE = "chum_last_inventory.json"
 
 TARGET_CREATORS = [
     {"name": "宮原梓", "id": "dst_miyaharaazu", "nickname": "ずに|あずさ|梓|あずにゃん|あずにゃ|みゃずさ|みやはら"},
-    {"name": "江本夏渚", "id": "dst_emotonana", "nickname": "えもと|なな|ななちゃん|えもなな|エモ(となな)|エモ"},
+    {"name": "江本夏渚", "id": "dst_emotonana", "nickname": "えもと|なな|ななちゃん|えもなな|エモ(となな)|江本|エモ"},
     {"name": "柏葉れん", "id": "dst_kashiwabare", "nickname": "れん|れんちゃん|かし|カシ|ドム|ジオング|かしわば"},
     {"name": "瀬﨑くるみ", "id": "dst_sezakikurum", "nickname": "陶芸家|くるみん|せざき|せざくる|セザクル"},
     {"name": "詩之宮かこ", "id": "chum_shinomiyak", "nickname": "かこちゃん|かこちま|ちま|かこち|しのみや"},
