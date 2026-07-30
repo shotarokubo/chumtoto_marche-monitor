@@ -1390,5 +1390,13 @@
     "limit": 30,
     "start": "2026-07-31 21:00",
     "creator_id": "dst_miyaharaazu"
+  },
+  "chum_shinomiyak_173090": {
+    "name": "詩之宮かこ",
+    "title": "【詩之宮かこ】ちゃむわーるど拡張ツアーマルシェ",
+    "stock": 15,
+    "limit": 15,
+    "start": "2026-07-31 21:00",
+    "creator_id": "chum_shinomiyak"
   }
 }
