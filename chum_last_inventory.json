@@ -1406,5 +1406,37 @@
     "limit": 50,
     "start": "2026-08-20 21:15",
     "creator_id": "dst_sezakikurum"
+  },
+  "dst_miyaharaazu_175201": {
+    "name": "宮原梓",
+    "title": "【宮原梓】オンラインサイン会",
+    "stock": 40,
+    "limit": 40,
+    "start": "2026-08-20 21:30",
+    "creator_id": "dst_miyaharaazu"
+  },
+  "dst_kashiwabare_175197": {
+    "name": "柏葉れん",
+    "title": "【柏葉れん】オンラインサイン会",
+    "stock": 40,
+    "limit": 40,
+    "start": "2026-08-20 21:30",
+    "creator_id": "dst_kashiwabare"
+  },
+  "dst_sezakikurum_175199": {
+    "name": "瀬﨑くるみ",
+    "title": "【瀬﨑くるみ】オンラインサイン会",
+    "stock": 40,
+    "limit": 40,
+    "start": "2026-08-20 21:30",
+    "creator_id": "dst_sezakikurum"
+  },
+  "chum_shinomiyak_175205": {
+    "name": "詩之宮かこ",
+    "title": "【詩之宮かこ】オンラインサイン会",
+    "stock": 40,
+    "limit": 40,
+    "start": "2026-08-20 21:30",
+    "creator_id": "chum_shinomiyak"
   }
 }
