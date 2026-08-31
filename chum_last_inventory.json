@@ -1438,5 +1438,21 @@
     "limit": 40,
     "start": "2026-08-20 21:30",
     "creator_id": "chum_shinomiyak"
+  },
+  "dst_miyaharaazu_176628": {
+    "name": "宮原梓",
+    "title": "【宮原梓】オンラインサイン会/追加販売",
+    "stock": 0,
+    "limit": 5,
+    "start": "2026-08-31 18:45",
+    "creator_id": "dst_miyaharaazu"
+  },
+  "dst_kashiwabare_176627": {
+    "name": "柏葉れん",
+    "title": "【柏葉れん】オンラインサイン会/追加販売",
+    "stock": 0,
+    "limit": 5,
+    "start": "2026-08-31 18:45",
+    "creator_id": "dst_kashiwabare"
   }
 }
